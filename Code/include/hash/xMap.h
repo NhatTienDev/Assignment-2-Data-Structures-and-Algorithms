@@ -267,7 +267,7 @@ V xMap<K,V>::put(K key, V value)
     this -> count++;
     this -> ensureLoadFactor(this -> count);
 
-    return V();
+    return retValue;
 }
 
 template<class K, class V>
@@ -339,7 +339,7 @@ bool xMap<K,V>::remove(K key, V value, void (*deleteKeyInMap)(K), void (*deleteV
     {
         Entry *pEntry = *it;
 
-        if(keyEQ(pEntry -> key, key) && valueEQ(pEntry -> value, value))
+        if(keyEQ(pEntry -> key, key))
         {
             if(deleteKeyInMap)
             {
