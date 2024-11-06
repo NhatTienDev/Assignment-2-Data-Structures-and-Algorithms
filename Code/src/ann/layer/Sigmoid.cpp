@@ -14,25 +14,38 @@
 #include "sformat/fmt_lib.h"
 #include "ann/functions.h"
 
-Sigmoid::Sigmoid(string name) {
+Sigmoid::Sigmoid(string name)
+{
     if(trim(name).size() != 0) m_sName = name;
     else m_sName = "Sigmoid_" + to_string(++m_unLayer_idx);
 }
 
-Sigmoid::Sigmoid(const Sigmoid& orig) {
+Sigmoid::Sigmoid(const Sigmoid& orig)
+{
     m_sName = "Sigmoid_" + to_string(++m_unLayer_idx);
 }
 
-Sigmoid::~Sigmoid() {
-}
-xt::xarray<double> Sigmoid::forward(xt::xarray<double> X) {
+Sigmoid::~Sigmoid()
+{}
+
+xt::xarray<double> Sigmoid::forward(xt::xarray<double> X)
+{
     //YOUR CODE IS HERE
-}
-xt::xarray<double> Sigmoid::backward(xt::xarray<double> DY) {
-    //YOUR CODE IS HERE
+    m_aCached_Y = 1.0 / (1.0 + xt::exp(-X));
+
+    return m_aCached_Y;
 }
 
-string Sigmoid::get_desc(){
+xt::xarray<double> Sigmoid::backward(xt::xarray<double> DY)
+{
+    //YOUR CODE IS HERE
+    xt::xarray<double> gradient = m_aCached_Y * (1.0 - m_aCached_Y);
+    
+    return DY * gradient;
+}
+
+string Sigmoid::get_desc()
+{
     string desc = fmt::format("{:<10s}, {:<15s}:",
                     "Sigmoid", this->getname());
     return desc;
