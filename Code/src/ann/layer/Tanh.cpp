@@ -26,11 +26,20 @@ Tanh::Tanh(const Tanh& orig) {
 Tanh::~Tanh() {
 }
 
-xt::xarray<double> Tanh::forward(xt::xarray<double> X) {
+xt::xarray<double> Tanh::forward(xt::xarray<double> X)
+{
     //YOUR CODE IS HERE
+    m_aCached_Y = xt::tanh(X);
+
+    return m_aCached_Y;
 }
-xt::xarray<double> Tanh::backward(xt::xarray<double> DY) {
+
+xt::xarray<double> Tanh::backward(xt::xarray<double> DY)
+{
     //YOUR CODE IS HERE
+    xt::xarray<double> gradient = 1.0 - xt::square(m_aCached_Y);
+    
+    return DY * gradient;
 }
 
 string Tanh::get_desc(){
