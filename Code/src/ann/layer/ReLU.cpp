@@ -26,14 +26,22 @@ ReLU::ReLU(const ReLU& orig) {
 ReLU::~ReLU() {
 }
 
-xt::xarray<double> ReLU::forward(xt::xarray<double> X) {
+xt::xarray<double> ReLU::forward(xt::xarray<double> X)
+{
     //YOUR CODE IS HERE
-}
-xt::xarray<double> ReLU::backward(xt::xarray<double> DY) {
-    //YOUR CODE IS HERE
+    m_aMask = X >= 0;
+
+    return xt::where(m_aMask, X, 0.0);
 }
 
-string ReLU::get_desc(){
+xt::xarray<double> ReLU::backward(xt::xarray<double> DY)
+{
+    //YOUR CODE IS HERE
+    return xt::where(m_aMask, DY, 0.0);
+}
+
+string ReLU::get_desc()
+{
     string desc = fmt::format("{:<10s}, {:<15s}:",
                     "ReLU", this->getname());
     return desc;
