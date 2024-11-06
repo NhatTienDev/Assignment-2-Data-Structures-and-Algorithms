@@ -24,14 +24,26 @@ Softmax::Softmax(int axis, string name): m_nAxis(axis) {
 Softmax::Softmax(const Softmax& orig) {
 }
 
-Softmax::~Softmax() {
+Softmax::~Softmax(){}
+
+xt::xarray<double> Softmax::forward(xt::xarray<double> X)
+{
+    //YOUR CODE IS HERE
+    m_aCached_Y = softmax(X, m_nAxis);
+
+    return m_aCached_Y;
 }
 
-xt::xarray<double> Softmax::forward(xt::xarray<double> X) {
+xt::xarray<double> Softmax::backward(xt::xarray<double> DY)
+{
     //YOUR CODE IS HERE
-}
-xt::xarray<double> Softmax::backward(xt::xarray<double> DY) {
-    //YOUR CODE IS HERE
+    xt::xarray<double> DIAG_Y = xt::diag(m_aCached_Y);
+    xt::xarray<double> m_aCached_Y_T = xt::transpose(m_aCached_Y); // Convert to transpose matrix
+    xt::xarray<double> OUTER_multiplication = xt::linalg::outer(m_aCached_Y, m_aCached_Y_T);
+    xt::xarray<double> Jacobian = DIAG_Y - OUTER_multiplication;
+    xt::xarray<double> backpropagation = xt::linalg::dot(Jacobian, DY);
+    
+    return backpropagation;
 }
 
 string Softmax::get_desc(){
