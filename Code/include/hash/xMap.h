@@ -623,7 +623,7 @@ void xMap<K,V>::removeInternalData()
 template<class K, class V>
 void xMap<K,V>::copyMapFrom(const xMap<K,V>& map)
 {    
-    this -> capacity = map.capacity;
+    this -> capacity = 10;
     this -> count = 0;
     this -> table = new DLinkedList<Entry*>[capacity];
     
