@@ -14,7 +14,8 @@
 #define FCLAYER_H
 #include "layer/ILayer.h"
 
-class FCLayer: public ILayer {
+class FCLayer: public ILayer
+{
 public:
     FCLayer(int Nin=2, int Nout=10, bool use_bias=true);
     FCLayer(string sParams, string filename_w, string filename_b, string sName="");
@@ -30,17 +31,23 @@ public:
     int getNin(){return m_nNin; }
     int getNout(){return m_nNout; }
     string get_desc();
-    void set_weights(double_tensor W){
-        this->m_aWeights = W;
+    void set_weights(double_tensor W)
+    {
+        this -> m_aWeights = W;
     }
-    void set_bias(double_tensor b){
-        this->m_aBias = b;
+
+    void set_bias(double_tensor b)
+    {
+        this -> m_aBias = b;
     }
-    void set_use_bias(bool use_bias){
-        this->m_bUse_Bias = use_bias;
+
+    void set_use_bias(bool use_bias)
+    {
+        this -> m_bUse_Bias = use_bias;
     }
-    bool has_learnable_param(){ return true; };
-    LayerType get_type(){ return LayerType::FC; };
+
+    bool has_learnable_param(){return true;};
+    LayerType get_type(){return LayerType::FC;};
 
 protected:
     virtual void init_weights();
@@ -58,6 +65,4 @@ private:
     unsigned long long m_unSample_Counter;
 };
 
-
 #endif /* FCLAYER_H */
-
