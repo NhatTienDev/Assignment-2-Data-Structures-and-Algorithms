@@ -81,6 +81,21 @@ public:
         // TODO implement
     }
 
+    int get_batch_size()
+    {
+        return batch_size;
+    }
+
+    int get_sample_count()
+    {
+        return ptr_dataset -> len();
+    }
+    
+    int get_total_batch()
+    {
+        return int(ptr_dataset -> len()/batch_size);
+    }
+
     Iterator begin()
     {
         return Iterator(this -> ptr_dataset, this -> indices, 0, this -> batch_size, this -> total_batch);
