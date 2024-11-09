@@ -153,19 +153,19 @@ public:
             return this -> cursor != iterator.cursor;
         }
 
-        // Prefix ++ overload 
+        // Prefix ++ overload
         Iterator& operator++()
         {
             cursor++;
-            return *this; 
+            return *this;
         }
 
-        // Postfix ++ overload 
+        // Postfix ++ overload
         Iterator operator++(int)
         {
-            Iterator iterator = *this; 
-            ++*this; 
-            return iterator; 
+            Iterator iterator = *this;
+            ++*this;
+            return iterator;
         }
 
         void remove(void (*removeItemData)(T)=0)
