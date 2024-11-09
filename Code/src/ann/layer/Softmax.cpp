@@ -16,13 +16,13 @@
 #include <filesystem> //require C++17
 namespace fs = std::filesystem;
 
-Softmax::Softmax(int axis, string name): m_nAxis(axis) {
+Softmax::Softmax(int axis, string name): m_nAxis(axis)
+{
     if(trim(name).size() != 0) m_sName = name;
     else m_sName = "Softmax_" + to_string(++m_unLayer_idx);
 }
 
-Softmax::Softmax(const Softmax& orig) {
-}
+Softmax::Softmax(const Softmax& orig){}
 
 Softmax::~Softmax(){}
 
@@ -37,16 +37,17 @@ xt::xarray<double> Softmax::forward(xt::xarray<double> X)
 xt::xarray<double> Softmax::backward(xt::xarray<double> DY)
 {
     //YOUR CODE IS HERE
-    xt::xarray<double> DIAG_Y = xt::diag(m_aCached_Y);
-    xt::xarray<double> m_aCached_Y_T = xt::transpose(m_aCached_Y); // Convert to transpose matrix
-    xt::xarray<double> OUTER_multiplication = xt::linalg::outer(m_aCached_Y, m_aCached_Y_T);
+    xt::xarray<double> DIAG_Y = diag_stack(m_aCached_Y);
+    // xt::xarray<double> m_aCached_Y_T = xt::transpose(m_aCached_Y);
+    xt::xarray<double> OUTER_multiplication = outer_stack(m_aCached_Y, m_aCached_Y);
     xt::xarray<double> Jacobian = DIAG_Y - OUTER_multiplication;
-    xt::xarray<double> backpropagation = xt::linalg::dot(Jacobian, DY);
-    
+    xt::xarray<double> backpropagation = matmul_on_stack(Jacobian, DY);
+
     return backpropagation;
 }
 
-string Softmax::get_desc(){
+string Softmax::get_desc()
+{
     string desc = fmt::format("{:<10s}, {:<15s}: {:4d}",
                     "Softmax", this->getname(), m_nAxis);
     return desc;
