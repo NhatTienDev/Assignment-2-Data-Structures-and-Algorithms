@@ -135,18 +135,35 @@ void FCLayer::init_weights(){
     }
 }
 
-FCLayer::FCLayer(const FCLayer& orig) {
-    m_sName = "FC_" + to_string(++m_unLayer_idx);
+FCLayer::FCLayer(const FCLayer& orig)
+{
+    m_sName = "FC_" + to_string(m_unLayer_idx++);
 }
 
-FCLayer::~FCLayer() {
+FCLayer::~FCLayer(){}
+
+xt::xarray<double> FCLayer::forward(xt::xarray<double> X)
+{
+    //YOUR CODE IS HERE
+    if(m_trainable) m_aCached_X = X;
+    xt::xarray<double> output = xt::linalg::tensordot(X, xt::transpose(m_aWeights), {1}, {0});
+    
+    if(m_bUse_Bias) output += m_aBias;
+
+    return output;
 }
 
-xt::xarray<double> FCLayer::forward(xt::xarray<double> X) {
+xt::xarray<double> FCLayer::backward(xt::xarray<double> DY)
+{
     //YOUR CODE IS HERE
-}
-xt::xarray<double> FCLayer::backward(xt::xarray<double> DY) {
-    //YOUR CODE IS HERE
+    if(m_trainable) m_unSample_Counter += DY.shape()[0];
+    xt::xarray<double> dW_batch = outer_stack(DY, m_aCached_X);
+    m_aGrad_W = xt::mean(dW_batch, {0});
+
+    if(m_bUse_Bias) m_aGrad_b = xt::mean(DY, {0});
+    xt::xarray<double> dX = xt::linalg::dot(DY, m_aWeights);
+
+    return dX;
 }
 
 int FCLayer::register_params(IParamGroup* ptr_group){
@@ -166,6 +183,7 @@ string FCLayer::get_desc(){
                     this->m_nNin, this->m_nNout, this->m_bUse_Bias);
     return desc;
 }
+
 void FCLayer::save(string model_path){
     string filename_w = model_path + "/" + this->getname() + "_W.npy";
     string filename_b = model_path + "/" + this->getname() + "_b.npy";
@@ -191,7 +209,8 @@ void FCLayer::save(string model_path){
  *  + bias-file does not exist: use-bias=false;
  * 
  */
-void FCLayer::load(string model_path, string layer_name){
+void FCLayer::load(string model_path, string layer_name)
+{
     layer_name = trim(layer_name);
     
     string filename_w, filename_b;
