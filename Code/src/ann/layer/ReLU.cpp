@@ -23,21 +23,26 @@ ReLU::ReLU(const ReLU& orig) {
     m_sName = "ReLU_" + to_string(++m_unLayer_idx);
 }
 
-ReLU::~ReLU() {
+ReLU::~ReLU() { 
 }
 
 xt::xarray<double> ReLU::forward(xt::xarray<double> X)
 {
     //YOUR CODE IS HERE
     m_aMask = X >= 0;
+    xt::xarray<double> Y = m_aMask * X;
+    Y = xt::abs(Y);
 
-    return xt::where(m_aMask, X, 0.0);
+    return Y;
 }
 
 xt::xarray<double> ReLU::backward(xt::xarray<double> DY)
 {
     //YOUR CODE IS HERE
-    return xt::where(m_aMask, DY, 0.0);
+    xt::xarray<double> DX = m_aMask * DY;
+    DX = xt::abs(DX);
+
+    return DX;
 }
 
 string ReLU::get_desc()
