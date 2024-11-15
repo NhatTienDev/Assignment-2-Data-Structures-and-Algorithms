@@ -6,14 +6,16 @@
 
 
 
-xt::xarray<double> softmax(xt::xarray<double> X, int axis){
+xt::xarray<double> softmax(xt::xarray<double> X, int axis)
+{
     xt::svector<unsigned long> shape = X.shape();
     axis = positive_index(axis, shape.size());
     shape[axis] = 1;
     
     xt::xarray<double> Xmax = xt::amax(X, axis);
     X = xt::exp(X - Xmax.reshape(shape));
-    xt::xarray<double> SX = xt::sum(X, -1); SX = SX.reshape(shape);
+    xt::xarray<double> SX = xt::sum(X, -1);
+    SX = SX.reshape(shape);
     X = X/SX;
     
     return X;

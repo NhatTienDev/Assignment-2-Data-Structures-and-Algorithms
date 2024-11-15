@@ -17,34 +17,34 @@ IModel::~IModel(){
     if(m_pConfig != nullptr) delete m_pConfig;
 }
 
-void IModel::fit(DataLoader<double, double>* pTrainLoader,
-         DataLoader<double, double>* pValidLoader,
-         unsigned int nepoch,
-         unsigned int verbose){
-    //
+void IModel::fit(DataLoader<double, double>* pTrainLoader, DataLoader<double, double>* pValidLoader, unsigned int nepoch, unsigned int verbose)
+{
     on_begin_training(pTrainLoader, pValidLoader, nepoch, verbose);
 
-    for(int epoch=1; epoch <= nepoch; epoch++){
+    for(int epoch = 1; epoch <= nepoch; epoch++)
+    {
         on_begin_epoch();
         m_pMetricLayer->reset_metrics();
         
-        for(auto batch: *pTrainLoader){
+        for(auto batch: *pTrainLoader)
+        {
             double_tensor X = batch.getData();
             double_tensor t = batch.getLabel();
             on_begin_step(X.shape()[0]);
             
             //(0) Set gradient buffer to zeros
             //YOUR CODE IS HERE
-            
+            m_pOptimizer -> zero_grad();
             //(1) FORWARD-Pass
             //YOUR CODE IS HERE
-            
+            double_tensor Y = this -> forward(X);
+            double batch_loss = m_pLossLayer -> forward(Y, t);
             //(2) BACKWARD-Pass
             //YOUR CODE IS HERE
-            
+            this -> backward();
             //(3) UPDATE learnable parameters
             //YOUR CODE IS HERE
-            
+            m_pOptimizer -> step();
             //Record the performance for each batch
             ulong_tensor y_true = xt::argmax(t, 1);
             ulong_tensor y_pred = xt::argmax(Y, 1);

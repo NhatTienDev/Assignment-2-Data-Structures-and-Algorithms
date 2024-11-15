@@ -37,11 +37,12 @@ xt::xarray<double> Softmax::forward(xt::xarray<double> X)
 xt::xarray<double> Softmax::backward(xt::xarray<double> DY)
 {
     //YOUR CODE IS HERE
+    xt::xarray<double> backpropagation = xt::zeros_like(DY);
     xt::xarray<double> DIAG_Y = diag_stack(m_aCached_Y);
     // xt::xarray<double> m_aCached_Y_T = xt::transpose(m_aCached_Y);
     xt::xarray<double> OUTER_multiplication = outer_stack(m_aCached_Y, m_aCached_Y);
     xt::xarray<double> Jacobian = DIAG_Y - OUTER_multiplication;
-    xt::xarray<double> backpropagation = matmul_on_stack(Jacobian, DY);
+    backpropagation = matmul_on_stack(Jacobian, DY);
 
     return backpropagation;
 }

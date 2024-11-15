@@ -26,7 +26,8 @@ enum LayerType{
     SOFTMAX,
     NUM_LAYERS
 };
-class ILayer {
+class ILayer
+{
 public:
     ILayer();
     ILayer(const ILayer& orig);

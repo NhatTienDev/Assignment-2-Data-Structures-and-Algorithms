@@ -52,7 +52,8 @@ MLPClassifier::~MLPClassifier() {
 }
 
 //for the inference mode: begin
-double_tensor MLPClassifier::predict(double_tensor X, bool make_decision){
+double_tensor MLPClassifier::predict(double_tensor X, bool make_decision)
+{
     //SWITCH to inference mode
     bool old_mode = this->m_trainable;
     this->set_working_mode(false);
@@ -60,6 +61,7 @@ double_tensor MLPClassifier::predict(double_tensor X, bool make_decision){
     //DO the inference
     
     //YOUR CODE IS HERE
+    double_tensor Y = this -> forward(X);
     
     //RESTORE the previous mode
     this->set_working_mode(old_mode);
@@ -69,10 +71,8 @@ double_tensor MLPClassifier::predict(double_tensor X, bool make_decision){
     else return xt::argmax(Y, -1);
 }
 
-double_tensor MLPClassifier::predict(
-    DataLoader<double, double>* pLoader,
-    bool make_decision){
-
+double_tensor MLPClassifier::predict(DataLoader<double, double>* pLoader, bool make_decision)
+{
     bool old_mode = this->m_trainable;
     this->set_working_mode(false);
     
@@ -84,11 +84,28 @@ double_tensor MLPClassifier::predict(
                     "Batch", "Total Batch", "Num. of samples processed");
     cout << info;
     
-    int total_batch = pLoader->get_total_batch(); 
+    int total_batch = pLoader->get_total_batch();
     int batch_idx = 1;
     unsigned long long nsamples = 0;
-    for(auto batch: *pLoader){
+
+    for(auto batch: *pLoader)
+    {
         //YOUR CODE IS HERE
+        double_tensor X = batch.getData();
+        double_tensor Y = this -> forward(X);
+
+        if(first_batch)
+        {
+            results = Y;
+            first_batch = false;
+        }
+        else
+        {
+            results = results + Y;
+        }
+        
+        nsamples += X.shape()[0];
+        batch_idx++;
     }
     cout << "Prediction: End" << endl;
     
@@ -100,7 +117,8 @@ double_tensor MLPClassifier::predict(
 }
 
 
-double_tensor MLPClassifier::evaluate(DataLoader<double, double>* pLoader){
+double_tensor MLPClassifier::evaluate(DataLoader<double, double>* pLoader)
+{
     bool old_mode = this->m_trainable;
     this->set_working_mode(false);
     
@@ -108,9 +126,19 @@ double_tensor MLPClassifier::evaluate(DataLoader<double, double>* pLoader){
     meter.reset_metrics();
     
     //YOUR CODE IS HERE
+    for(auto batch : *pLoader)
+    {
+        double_tensor X = batch.getData();
+        double_tensor t = batch.getLabel();
+        double_tensor Y = this -> forward(X);
+        double_tensor y_true = xt::argmax(t, 1);
+        double_tensor y_pred = xt::argmax(Y, 1);
+        meter.accumulate(y_true, y_pred);
+    }
 
-    //
+    double_tensor metrics = meter.get_metrics();
     this->set_working_mode(old_mode);
+
     return metrics;
 }
 //for the inference mode:end
@@ -143,11 +171,28 @@ void MLPClassifier::set_working_mode(bool trainable){
 }
 
 //protected: for the training mode: begin
-double_tensor MLPClassifier::forward(double_tensor X){
+double_tensor MLPClassifier::forward(double_tensor X)
+{
     //YOUR CODE IS HERE
+    double_tensor Y = X;
+
+    for(DLinkedList<ILayer*>::Iterator it = m_layers.begin(); it != m_layers.end(); it++)
+    {
+        Y = (*it) -> forward(Y);
+    }
+
+    return Y;
 }
-void MLPClassifier::backward(){
+
+void MLPClassifier::backward()
+{
     //YOUR CODE IS HERE
+    double_tensor dY = m_pLossLayer -> backward();
+
+    for(DLinkedList<ILayer*>::BWDIterator it = m_layers.bbegin(); it != m_layers.bend(); it++)
+    {
+        dY = (*it) -> backward(dY);
+    }
 }
 //protected: for the training mode: end
 
